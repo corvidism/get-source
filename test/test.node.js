@@ -121,9 +121,46 @@ describe ('get-source', () => {
 
         const resolved = babeled.resolve ({ line: 6, column: 1 })
 
+        resolved.sourceFile.path.should.equal (path.resolve ('./test/files/original.js'))
         resolved.line.should.equal (4)
         resolved.column.should.equal (2)
         resolved.sourceLine.should.equal ('\treturn \'hello world\' }')
+    })
+
+    it ('reads sources (sourcemapped, with inline base64 sourcemaps) - unmapped line', () => {
+
+        const babeled = getSource ('./test/files/original.babeled.with.inline.sourcemap.js')
+
+        const resolved = babeled.resolve ({ line: 4, column: 0 })
+
+        resolved.sourceFile.path.should.equal (path.resolve ('./test/files/original.js'))
+        resolved.line.should.equal (2)
+        resolved.column.should.equal (0)
+        resolved.sourceLine.should.equal ('')
+    })
+
+    it ('TMP: control', () => {
+
+        const babeled = getSource ('./test/files/tmp.leading.spaces.js')
+
+        const resolved = babeled.resolve ({ line: 27, column: 5 })
+
+        resolved.sourceFile.path.should.equal (path.resolve ('./src/error/Error.ts'))
+        resolved.line.should.equal (28)
+        resolved.column.should.equal (3)
+        resolved.sourceLine.should.equal ('  getHttpStatus() {}')
+    })
+
+    it ('TMP: leading spaces not in the mapping', () => {
+
+        const babeled = getSource ('./test/files/tmp.leading.spaces.js')
+
+        const resolved = babeled.resolve ({ line: 27, column: 1 })
+
+        resolved.sourceFile.path.should.equal (path.resolve ('./test/files/original.js'))
+        resolved.line.should.equal (28)
+        resolved.column.should.equal (1)
+        resolved.sourceLine.should.equal ('  getHttpStatus() {}')
     })
 
     it ('supports even CHAINED sourcemaps!', () => {
@@ -209,6 +246,7 @@ describe ('get-source', () => {
                     './test/files/original.uglified.with.sources.js',
                     './test/files/original.uglified.with.sources.js.map',
                     './test/files/original.babeled.with.inline.sourcemap.js',
+                    './test/files/tmp.leading.spaces.js',
                     './test/files/original.uglified.beautified.js',
                     './test/files/original.uglified.beautified.js.map',
                     './abyrvalg' ]
